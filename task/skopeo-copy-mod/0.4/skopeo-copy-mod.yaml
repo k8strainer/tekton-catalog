@@ -1,0 +1,113 @@
+# modified version with secrets and internal/external mode (o.liebel 21/01/2025)
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: skopeo-copy
+  labels:
+    app.kubernetes.io/version: "0.4"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.12.1"
+    tekton.dev/categories: "Operator Build Tools Itc"
+    tekton.dev/tags: cli
+    tekton.dev/displayName: "skopeo copy mod"
+    tekton.dev/platforms: "linux/amd64,linux/s390x,linux/ppc64le,linux/arm64"
+spec:
+  description: >-
+    Skopeo is a command line tool for working with remote image registries.
+
+    Skopeo doesn’t require a daemon to be running while performing its operations.
+    In particular, the handy skopeo command called copy will ease the whole image
+    copy operation. The copy command will take care of copying the image from
+    internal.registry to production.registry. If your production registry requires
+    credentials to login in order to push the image, skopeo can handle that as well.
+
+  workspaces:
+    - name: images-url
+
+  params:
+    - name: srcImageURL
+      description: URL of the image to be copied to the destination registry
+      type: string
+      default: ""
+    - name: destImageURL
+      description: URL of the image where the image from source should be copied to
+      type: string
+      default: ""
+    - name: srcTLSverify
+      description: Verify the TLS on the src registry endpoint
+      type: string
+      default: "true"
+    - name: destTLSverify
+      description: Verify the TLS on the dest registry endpoint
+      type: string
+      default: "true"
+    - name: multiArch
+      description: How to handle multi-architecture images (system, all, or index-only)
+      type: string
+      default: "system"
+    - name: srcMode
+      description: "'internal' oder 'external' Quell-Registry"
+      type: string
+      default: ""
+    # Steuerung, ob extern -> extern   oder  intern -> extern  kopiert wird
+
+  steps:
+  - name: skopeo-copy
+    image: quay.io/skopeo/stable:v1
+    env:
+      - name: HOME
+        value: /tekton/home
+      - name: GCR_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: gcr-access-token
+            key: token
+      - name: INTERNAL_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: internal-registry-access
+            key: token
+    script: |
+      echo "srcImageURL:  $(params.srcImageURL)"
+      echo "destImageURL: $(params.destImageURL)"
+      echo "srcMode:      $(params.srcMode)"
+
+      # Prüfen, ob src & dest nicht leer sind:
+      if [ -n "$(params.srcImageURL)" ] && [ -n "$(params.destImageURL)" ]; then
+        echo "GCR Token: ${GCR_TOKEN}"
+        echo "Internal Token: ${INTERNAL_TOKEN}"
+
+        # Gemeinsame Argumente für skopeo copy:
+        copyArgs=(
+          --dest-registry-token="${GCR_TOKEN}"
+          --multi-arch="$(params.multiArch)"
+          --src-tls-verify="$(params.srcTLSverify)"
+          --dest-tls-verify="$(params.destTLSverify)"
+        )
+
+        if [ "$(params.srcMode)" = "internal" ]; then
+          echo "-> Quell-Registry ist 'internal'."
+          copyArgs+=( --src-registry-token="${INTERNAL_TOKEN}" )
+        else
+          echo "-> Quell-Registry ist 'external'."
+        fi
+
+        # Jetzt skopeo copy mit allen Argumenten ausführen
+        skopeo copy "${copyArgs[@]}" "$(params.srcImageURL)" "$(params.destImageURL)"
+        rc=$?
+
+        if [ "$rc" -eq 0 ]; then
+          echo "Image: $(params.srcImageURL) successfully copied from $(params.srcMode) to staging registry $(params.destImageURL)"
+        else
+          echo "Fehler beim Kopieren (Exit-Code: $rc)."
+          exit $rc
+        fi
+
+      else
+        # Falls keine src/dest => ggf. copyimages() aufrufen
+        copyimages
+      fi
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 65532
+
