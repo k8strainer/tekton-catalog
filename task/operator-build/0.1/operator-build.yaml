@@ -15,7 +15,8 @@ metadata:
 spec:
   ## description is mandatory for tekton hub, otherwise Task will not be displayed! 
   description: >-
-    Operator Build Tool.
+    Operator Build Tool, builds an Ansible Operator 
+    and pushes it to destination registry.
   params:
     - name: image-registry
       type: string
