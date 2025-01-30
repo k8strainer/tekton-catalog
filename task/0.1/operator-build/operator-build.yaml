@@ -6,7 +6,7 @@ metadata:
   # tbd -least privilege
   annotations:
 
-    tekton.dev/categories: Operator Build Tools ITC
+    tekton.dev/categories: "Operator Build Tools ITC"
     tekton.dev/displayName: "operator-build"
     tekton.dev/platforms: "linux/amd64"
 
