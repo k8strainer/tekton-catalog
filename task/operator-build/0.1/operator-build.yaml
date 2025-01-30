@@ -4,6 +4,11 @@ metadata:
   name: operator-build-task
   # Achtung: Muss privileged laufen, sonst Build Fehler
   # tbd -least privilege
+  annotations:
+
+    tekton.dev/categories: "Operator Build Tools Itc"
+    tekton.dev/displayName: "operator-build"
+    tekton.dev/platforms: "linux/amd64"
 spec:
   params:
     - name: image-registry
