@@ -4,6 +4,8 @@ metadata:
   name: operator-build-task
   # Achtung: Muss privileged laufen, sonst Build Fehler
   # tbd -least privilege
+  labels:
+    app.kubernetes.io/version: "0.1"
   annotations:
 
     tekton.dev/categories: "OperatorBuildTools"
