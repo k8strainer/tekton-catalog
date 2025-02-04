@@ -1,4 +1,4 @@
-# Skopeo Copy (modified by Oliver Liebel / itc)
+# Skopeo Copy (modified)  (c) Oliver Liebel 2025
 
 This Task uses [Skopeo](https://github.com/containers/skopeo), a command line tool
 for working with remote image registries, to copy container images from one
@@ -9,7 +9,7 @@ performing these operations.
 ## Install the Task
 
 ```bash
-kubectl apply -f https://github.com/k8strainer/tekton-catalog/edit/main/task/skopeo-copy-mod/0.4/raw
+kubectl apply -f https://raw.githubusercontent.com/k8strainer/tekton-catalog/refs/heads/main/task/skopeo-copy-mod/0.4/skopeo-copy-mod.yaml
 ```
 
 *(If you have a modified version of the Task, adjust the URL or apply your local YAML.)*
