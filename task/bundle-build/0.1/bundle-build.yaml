@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: bundle-build-task
+  # Achtung: Muss privileged laufen, sonst Build Fehler
+  # tbd -least privilege
+spec:
+  params:
+    - name: image-registry
+      type: string
+    - name: image-tag
+      type: string
+    - name: makefile-path
+      type: string
+      description: "The absolute path to the identified Makefile"
+  workspaces:
+    - name: source
+      description: "Workspace with the source code"
+#  enable the following lines only for Minikube
+  steps:
+    - name: build-and-push-to-testrepo
+      #image: quay.io/operator-framework/operator-sdk:v1.31.0
+      image: gcr.io/cluster-01-290863/operators/ubi-op-build:latest
+      script: |
+        # Verwende den Makefile-Pfad-Parameter
+        MAKEFILE_PATH=$(params.makefile-path)
+
+        if [ -z "$MAKEFILE_PATH" ]; then
+          echo "Makefile path not found!"
+          exit 1
+        fi
+
+        # Wechsel ins Verzeichnis des Makefiles
+        cd $(dirname $MAKEFILE_PATH)
+
+        # Führe die Build-Befehl aus
+        make bundle
+        make bundle-build bundle-push
+      securityContext:
+        privileged: true
+
