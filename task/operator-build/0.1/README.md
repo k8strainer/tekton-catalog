@@ -13,7 +13,7 @@ Operator image.
 ## Install the Task
 
 ```bash
-kubectl apply -f https://api.hub.tekton.dev/v1/resource/tekton/task/operator-build-task/0.1/raw
+kubectl apply -f https://github.com/k8strainer/tekton-catalog/blob/main/task/operator-build/0.1/raw
 ```
 
 > If you have a custom or locally modified Task, apply your own YAML instead.
