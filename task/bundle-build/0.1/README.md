@@ -8,7 +8,7 @@ creating a bundle (via `make bundle`) and subsequently building and pushing it
 ## Install the Task
 
 ```bash
-kubectl apply -f https://api.hub.tekton.dev/v1/resource/tekton/task/bundle-build-task/0.1/raw
+kubectl apply -f https://github.com/k8strainer/tekton-catalog/edit/main/task/bundle-build/0.1/raw
 ```
 
 > If you have a custom or locally modified Task YAML, apply your own file instead.
