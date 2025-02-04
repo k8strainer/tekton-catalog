@@ -1,4 +1,4 @@
-# Bundle Build Task
+# Bundle Build Task (c) Oliver Liebel 2025
 
 This Task automates the process of building and pushing an Operator **Bundle** image
 for an Ansible-based Operator. It uses a Makefile that defines the steps for
