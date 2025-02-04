@@ -4,7 +4,18 @@ metadata:
   name: bundle-build-task
   # Achtung: Muss privileged laufen, sonst Build Fehler
   # tbd -least privilege
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.12.1"
+    tekton.dev/categories: "OperatorBuildTools"
+    tekton.dev/displayName: "bundle build"
+    tekton.dev/platforms: "linux/amd64,linux/s390x,linux/ppc64le,linux/arm64"
 spec:
+  ## description is mandatory for tekton hub, otherwise Task will not be displayed! 
+  description: >-
+    Operator Bundle Build Tool, builds a Bundle for an Ansible Operator 
+    and pushes it to destination registry.
   params:
     - name: image-registry
       type: string
