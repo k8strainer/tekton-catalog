@@ -1,4 +1,4 @@
-# Operator Build Task (C) Oliver Liebel 2025
+# Operator Build Task (c) Oliver Liebel 2025
 
 This Task automates the process of building and pushing an Ansible-based Operator
 image to a container registry. It expects a Makefile that defines the `docker-build`
