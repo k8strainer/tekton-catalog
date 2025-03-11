@@ -1,0 +1,47 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: modify-makefile-task
+spec:
+  params:
+    - name: operator-sdk-version
+      type: string
+    - name: image-tag-base
+      type: string
+    - name: version
+      type: string
+  workspaces:
+    - name: source
+      description: "Workspace with the source code"
+  results:
+    - name: makefile-path
+      description: "Absolute path to the identified Makefile"
+  steps:
+    - name: find-and-modify-makefile
+      #image: alpine:latest
+      image: mirror.gcr.io/library/alpine:latest
+      script: |
+        # Suche nach dem Makefile mit spezifischem Inhalt
+        #MAKEFILE_PATH=$(find $(workspaces.source.path)/testdata/ansible/memcached-operator -type f -name "Makefile" -exec grep -l "VERSION ?= 0.0.1" {} + | head -n 1)
+        MAKEFILE_PATH=$(find $(workspaces.source.path)/testdata/ansible/memcached-operator -type f -name "Makefile" -exec grep -l "IMAGE_TAG_BASE ?= example.com/memcached-operator" {} + | head -n 1)
+
+        if [ -z "$MAKEFILE_PATH" ]; then
+          echo "Specified Makefile not found in Ansible directory!"
+          exit 1
+        fi
+
+        # Ausgabe des absoluten Pfads des gefundenen Makefiles und Speichern im Result
+        echo "Identified Makefile at: $MAKEFILE_PATH"
+        echo "$MAKEFILE_PATH" > $(results.makefile-path.path)
+
+        # Passe nur das gefundene Makefile an
+        sed -i "s|^OPERATOR_SDK_VERSION ?=.*|OPERATOR_SDK_VERSION ?= $(params.operator-sdk-version)|" "$MAKEFILE_PATH"
+        sed -i "s|^IMAGE_TAG_BASE ?=.*|IMAGE_TAG_BASE ?= $(params.image-tag-base)|" "$MAKEFILE_PATH"
+        sed -i "s|^IMG ?=.*|IMG ?= $(params.image-tag-base)memcached-operator:$(params.version)|" "$MAKEFILE_PATH"
+        sed -i "s|^BUNDLE_IMG ?=.*|BUNDLE_IMG ?= $(params.image-tag-base)memcached-operator-bundle:$(params.version)|" "$MAKEFILE_PATH"
+
+        #sed -i "s|docker build -t \${IMG} \.|docker build --privileged -t \${IMG} .|" "$MAKEFILE_PATH"
+
+        # Gebe den Inhalt des modifizierten Makefiles aus
+        echo "Modified Makefile content:"
+        cat "$MAKEFILE_PATH"
