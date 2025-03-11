@@ -2,7 +2,20 @@ apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: modify-makefile-task
+  labels:
+    app.kubernetes.io/version: "0.3"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.12.1"
+    tekton.dev/categories: "OperatorBuildTools"
+    tekton.dev/displayName: "operator build"
+    tekton.dev/platforms: "linux/amd64,linux/s390x,linux/ppc64le,linux/arm64"
 spec:
+  ## description is mandatory for tekton hub, otherwise Task will not be displayed! 
+  description: >-
+    Operator Build Tool. This Task searches for a specific Makefile in your Ansible Operator project, 
+    then edits certain lines (e.g., OPERATOR_SDK_VERSION, IMAGE_TAG_BASE, and IMG) 
+    to match the provided parameter values. It is useful for automatically updating
+    or customizing your Makefile before building and pushing your Operator.  
   params:
     - name: operator-sdk-version
       type: string
