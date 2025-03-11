@@ -8,7 +8,7 @@ customizing your Makefile before building and pushing your Operator.
 ## Install the Task
 
 ```bash
-kubectl apply -f https://api.hub.tekton.dev/v1/resource/tekton/task/modify-makefile-task/0.1/raw
+kubectl apply -f https://raw.githubusercontent.com/k8strainer/tekton-catalog/refs/heads/main/task/bundle-build/0.3/modify-makefile.yaml
 ```
 
 > If you have a modified version of the Task, apply your own YAML or local file
