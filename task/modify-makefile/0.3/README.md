@@ -1,4 +1,4 @@
-# Modify Makefile Task
+# Modify Makefile Task (c) Oliver Liebel 2025
 
 This Task searches for a specific Makefile in your Ansible Operator project, then
 edits certain lines (e.g., `OPERATOR_SDK_VERSION`, `IMAGE_TAG_BASE`, and `IMG`) to
